@@ -5,6 +5,7 @@ import "net/http"
 import "strings"
 import "io/ioutil"
 import "github.com/nlopes/slack"
+import "net/url"
 import "os"
 
 type SlackCommand struct {
@@ -17,6 +18,28 @@ type SlackCommand struct {
 	command string
 	text    string
 	suser   slack.User
+}
+
+func get_fscore(sc SlackCommand) string {
+	endpoint := "https://api.spotify.com/v1/search?q=guns&type=artist&limit=30user=" +
+		url.QueryEscape(sc.suser.RealName) + "&channel=" + url.QueryEscape(sc.cname)
+	fmt.Println(endpoint)
+	response, err := http.Get(endpoint)
+	if err != nil {
+		return err.Error()
+	}
+
+	bytes, err := ioutil.ReadAll(response.Body)
+	response.Body.Close()
+	if err != nil {
+		return err.Error()
+	}
+
+	if response.StatusCode == 200 {
+		return fmt.Sprintf("API got: %d bytes", len(bytes))
+	} else {
+		return fmt.Sprintf("%d %s", response.StatusCode, string(bytes))
+	}
 }
 
 func process(w http.ResponseWriter, r *http.Request) {
@@ -55,9 +78,12 @@ func process(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	fmt.Println(sc.suser.Profile.Email)
-	fmt.Fprintf(w, "Processing...")
 
 	if strings.Contains(sc.text, "fscore") {
+		fscore := get_fscore(sc)
+		fmt.Fprintf(w, fscore)
+	} else {
+		fmt.Fprintf(w, "Unknown command")
 	}
 }
 
