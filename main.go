@@ -4,6 +4,8 @@ import "fmt"
 import "net/http"
 import "strings"
 import "io/ioutil"
+import "github.com/nlopes/slack"
+import "os"
 
 type SlackCommand struct {
 	team    string
@@ -43,6 +45,15 @@ func process(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	fmt.Println(sc)
+	api := slack.New(os.Getenv("SLACK_PROPOSAL_BOT"))
+	list, _ := api.GetUsers()
+	for _, u := range list {
+		if u.ID == sc.user {
+			fmt.Println(u)
+			break
+		}
+	}
+
 	/*
 
 		team_id T035N23CL
