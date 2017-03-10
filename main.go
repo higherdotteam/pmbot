@@ -50,6 +50,7 @@ func process(w http.ResponseWriter, r *http.Request) {
 	for _, u := range list {
 		if u.ID == sc.user {
 			fmt.Println(u)
+			fmt.Println(u.Profile)
 			break
 		}
 	}
