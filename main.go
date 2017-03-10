@@ -16,6 +16,7 @@ type SlackCommand struct {
 	uname   string
 	command string
 	text    string
+	suser   slack.User
 }
 
 func process(w http.ResponseWriter, r *http.Request) {
@@ -49,11 +50,11 @@ func process(w http.ResponseWriter, r *http.Request) {
 	list, _ := api.GetUsers()
 	for _, u := range list {
 		if u.ID == sc.user {
-			fmt.Println(u)
-			fmt.Println(u.Profile)
+			sc.suser = u
 			break
 		}
 	}
+	fmt.Println(sc.suser.Profile.Email)
 
 	/*
 
